@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/6bbc4eec1b.js" crossorigin="anonymous"></script>
+    
+    <!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="row">
+                <div class="col-8 offset-2">
+                    <div class="card mt-5">
+                        <div class="card-header">
+                            <h2 class="card-title">Jetzt abstimmen!</h2>
+                           Gesamtsumme Stimmen: {{Summe}}
+                        </div>
+                        <div class="card-body">  
+                            <div v-for="entry in SortedEntries">
+                                <entry-component 
+                                v-bind:entry="entry"
+                                v-bind:entries="SortedEntries"
+                                >
+                                </entry-component>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const entries = [
+            {
+                id:1 ,
+                title: 'Spaghetti',
+                desc: 'Ein Nudelgericht.',
+                votes: 16,
+                dvotes: 5,
+                diffvotes: 1,
+                author: 'Italien',
+                image: 'https://via.placeholder.com/64'
+            },
+            {
+                id:2 ,
+                title: 'Gulasch',
+                desc: 'Ein Fleischgericht mit Gemüse.',
+                votes: 15,
+                dvotes: 0,
+                diffvotes: 11,
+                author: 'Ungarn',
+                image: 'https://via.placeholder.com/64'
+            },
+            {
+                id:3 ,
+                title: 'Schnitzel',
+                desc: 'Dünnes Fleischstück paniert.',
+                votes: 19,
+                dvotes: 0,
+                diffvotes: 1,
+                author: 'Österreich',
+                image: 'https://via.placeholder.com/64'
+            },
+            {
+                id:4 ,
+                title: 'Kebap',
+                desc: 'Fleisch im Brot mit Gemüse und Soße.',
+                votes: 18,
+                dvotes: 0,
+                diffvotes: 1,
+                author: 'Türkei',
+                image: 'https://via.placeholder.com/64'
+            }
+        ];
+    </script>
+    <script src="https://unpkg.com/vue"></script>
+    <script>
+        Vue.component('entry-component', {
+            props: ['entry', 'entries'],
+            template: `
+                <div class="d-flex align-items-start">
+                    <img class="me-3" v-bind:src="entry.image" >
+                    <div class="flex-grow-1 float-none">
+                        <h5> 
+                            {{ entry.title }}
+                            <span class="float-end text-success" 
+                            style="cursor: pointer"
+                            >
+                                <i class="fa fa-chevron-right"></i>
+                                <strong>{{Diff}}</strong>
+                            </span>
+                            
+                            <span class="float-end text-danger me-3" 
+                            style="cursor: pointer"
+                            v-on:click="Vote(entry.id,0)"
+                            >
+                                <i class="fa fa-thumbs-down"></i>
+                                <strong>{{entry.dvotes}}</strong>
+                            </span>
+
+                            <span class="float-end text-primary me-3" 
+                            style="cursor: pointer"
+                            v-on:click="Vote(entry.id,1)"
+                            >
+                                <i class="fa fa-thumbs-up"></i>
+                                <strong>{{entry.votes}}</strong>
+                            </span>
+                        </h5>
+                        <div>
+                            {{entry.desc}}
+                        </div>
+                        <small class="text-muted">{{entry.author}}</small>
+                        
+                    </div>
+                </div>   
+            `,
+
+            methods: {
+                Vote(entryId,art) {
+                const entry = this.entries.find(entry=>entry.id===entryId);
+                if (art === 0) 
+                    entry.dvotes++;
+                else
+                    entry.votes++;
+                },
+            },
+            computed: {
+            Diff () {
+                this.entry.diffvotes=this.entry.votes-this.entry.dvotes;
+                return this.entry.votes-this.entry.dvotes;  
+                }
+            }
+        });
+        
+        new Vue ({
+            el: '#app',
+            
+            data: {
+                entries: entries 
+            },
+
+            computed: {
+                SortedEntries () {
+                    return this.entries.sort((a,b)=>{
+                        return b.diffvotes - a.diffvotes
+                    });
+                },
+                Summe () {
+                    var sum=0;
+                    for (var i=0; i<entries.length; i++){
+                         sum=sum+entries[i].votes;
+                    }
+                    return sum
+                },
+                TV () {
+                    return this.entries.reduce((totalvotes, entry)=>{
+                        return totalvotes + entry.votes;
+                    },0)
+                }
+
+            }
+        });
+    </script>
+</body>
+</html>
